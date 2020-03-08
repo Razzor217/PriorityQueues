@@ -1,4 +1,5 @@
 #include "BucketQueue/BucketQueue.h"
+#include "RadixHeap/RadixHeap.h"
 
 int main()
 {
