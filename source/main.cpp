@@ -1,4 +1,4 @@
-#include "interface/IQueue.h"
+#include "BucketQueue/BucketQueue.h"
 
 int main()
 {
