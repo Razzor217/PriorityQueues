@@ -1,0 +1,14 @@
+# ignore all
+*
+
+# unignore all with extension
+!*.*
+
+# unignore all directories
+!*/
+
+# ignore build directory
+build
+
+# ignore DS_Store
+*.DS_Store
