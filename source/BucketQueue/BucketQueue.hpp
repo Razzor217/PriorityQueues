@@ -1,7 +1,7 @@
-using namespace bq;
+using namespace queue;
 
 template<class V>
-void BucketQueue<V>::_init(int max)
+BucketQueue<V>::BucketQueue(int max)
 {
     this->max = max;
     min = 0;

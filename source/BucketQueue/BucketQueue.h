@@ -2,12 +2,11 @@
 
 #include "../interface/IQueue.h"
 
-#include <memory>
 #include <vector>
 #include <list>
 #include <utility>
 
-namespace bq
+namespace queue
 {
     template<class V>
     using BucketVector = std::vector<std::list<std::pair<V, int>>>;
@@ -16,10 +15,7 @@ namespace bq
     class BucketQueue : public IQueue<V>
     {
     public:
-        BucketQueue(int max)
-        {
-            _init(max);
-        }
+        BucketQueue(int max);
 
         int size();
 
@@ -30,8 +26,6 @@ namespace bq
         void deleteMin(V& element, int& key);
 
     private:
-        void _init(int max);
-
         BucketVector<V> buckets;
         int max;
         int min;
