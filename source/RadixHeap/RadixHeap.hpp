@@ -21,25 +21,29 @@ int RadixHeap<V>::size()
 }
 
 template<class V>
-void RadixHeap<V>::insert(V element, int key)
+PairPtr<V> RadixHeap<V>::insert(V element, int key)
 {
+    auto handle = std::make_shared<std::pair<V, int>>(element, key);
+
     // compute bucket and insert element with key
     int d = msd(min, key);
     if (d)
     {
-        buckets[std::min(d, max) + 1].push_back(std::make_pair(element, key));
+        buckets[std::min(d, max) + 1].push_back(handle);
     }
     else
     {
-        buckets[0].push_back(std::make_pair(element, key));
+        buckets[0].push_back(handle);
     }
+
+    return handle;
 }
 
 template<class V>
-void RadixHeap<V>::decreaseKey(V element, int old, int key)
+void RadixHeap<V>::decreaseKey(PairPtr<V> handle, int key)
 {
     // compute old bucket
-    int d = msd(min, key);
+    int d = msd(min, handle->second);
     int b = 0;
     
     if (d)
@@ -48,20 +52,18 @@ void RadixHeap<V>::decreaseKey(V element, int old, int key)
     }
 
     // find element in old bucket
-    auto it = std::find(buckets[b].begin(), 
-                        buckets[b].end(), 
-                        std::make_pair(element, old));
+    auto it = std::find(buckets[b].begin(), buckets[b].end(), handle);
     assert(it  != buckets[b].end());
 
     // remove element from old bucket
     buckets[b].erase(it);
 
     // insert element into new bucket
-    insert(element, key);
+    handle = insert(handle->first, key);
 }
 
 template<class V>
-void RadixHeap<V>::deleteMin(V& element, int& key)
+PairPtr<V> RadixHeap<V>::deleteMin()
 {
     if (buckets[0].empty)
     {
@@ -77,14 +79,26 @@ void RadixHeap<V>::deleteMin(V& element, int& key)
 
         // retreive smallest element of bucket i 
         auto it = std::min_element(buckets[i].begin(), buckets[i].end(), 
-            [] (std::pair<V, int> a, std::pair<V, int> b) 
+            [] (PairPtr<V> a, PairPtr<V> b) 
             { 
-                return a.second < b.second; 
+                return a->second < b->second; 
             });
 
-        // move element to bucket 0
-        buckets[i].erase(it);
-        buckets[0].push_back(*it);
+        int minKey = it->second;
+
+        do 
+        {
+            // move smallest element in bucket i to bucket 0
+            buckets[0].push_back(*it);
+            buckets[i].erase(it);
+
+            it = std::find_if(buckets[i].begin(), buckets[i].end(),
+                [] (PairPtr<V> handle)
+                {
+                    return handle->second == minKey;
+                });
+        }
+        while (it != buckets[i].end());
 
         // update min
         min = it->second;
@@ -100,9 +114,7 @@ void RadixHeap<V>::deleteMin(V& element, int& key)
     }
 
     // delete minimum element
-    auto result = buckets[0].pop_front();
-    element = result.first;
-    key = result.second;
+    return buckets[0].pop_front();
 }
 
 template<class V>

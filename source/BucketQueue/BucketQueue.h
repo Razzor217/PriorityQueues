@@ -2,15 +2,8 @@
 
 #include "../interface/IQueue.h"
 
-#include <vector>
-#include <list>
-#include <utility>
-
 namespace queue
 {
-    template<class V>
-    using BucketVector = std::vector<std::list<std::pair<V, int>>>;
-
     template<class V>
     class BucketQueue : public IQueue<V>
     {
@@ -19,11 +12,11 @@ namespace queue
 
         int size();
 
-        void insert(V element, int key);
+        PairPtr<V> insert(V element, int key);
 
-        void decreaseKey(V element, int old, int key);
+        void decreaseKey(PairPtr<V> handle, int key);
 
-        void deleteMin(V& element, int& key);
+        PairPtr<V> deleteMin();
 
     private:
         BucketVector<V> buckets;

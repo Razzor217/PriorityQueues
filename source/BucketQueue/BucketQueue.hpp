@@ -22,46 +22,57 @@ int BucketQueue<V>::size()
 }
 
 template<class V>
-void BucketQueue<V>::insert(V element, int key)
+PairPtr<V> BucketQueue<V>::insert(V element, int key)
 {
-    buckets[key % (max + 1)].push_back(std::make_pair(element, key));
+    auto handle = std::make_shared<std::pair<V, int>>(element, key);
+
+    buckets[key % (max + 1)].push_back(handle);
+
+    return handle;
 }
 
 template<class V>
-void BucketQueue<V>::decreaseKey(V element, int old, int key)
+void BucketQueue<V>::decreaseKey(PairPtr<V> handle, int key)
 {
-    auto b = buckets[old % (max + 1)];
+    auto b = buckets[handle->second % (max + 1)];
 
     // find element in bucket b
-    auto it = std::find(b.begin(), b.end(), std::make_pair(element, old));
+    auto it = std::find(b.begin(), b.end(), handle);
     assert(it != b.end());
 
     // erase element with old key
     b.erase(it);
 
     // insert element with new key
-    insert(element, key);
+    handle = insert(handle->first, key);
 }
 
 template<class V> 
-void BucketQueue<V>::deleteMin(V& element, int& key)
+PairPtr<V> BucketQueue<V>::deleteMin()
 {
     if (size())
     {
+        auto it = buckets.begin();
+        std::advance(it, min % (max + 1));
+
         // advance until bucket is not empty
-        int i;
-        for (i = min % (max + 1); i < (max + 1); ++i)
+        while(it->empty())
         {
-            if (!buckets[i].empty())
+            // cycle through buckets
+            if (it == buckets.end())
             {
-                break;
+                it = buckets.begin();
             }
-            ++min;
+            else
+            {
+                ++it;
+                ++min;
+            }
         }
 
         // remove element with smallest key
-        auto p = buckets[i].pop_front();
-        element = p.first;
-        key = p.second;
+        return buckets[min % (max + 1)].pop_front();
     }
+
+    return NULL;
 }
